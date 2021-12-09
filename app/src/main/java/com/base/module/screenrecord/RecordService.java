@@ -123,7 +123,6 @@ public class RecordService extends Service {
 
     //not used ,pre for save the encode data
     private void saveEncorderData(byte[] bfile, String filePath,String fileName) {
-        BufferedOutputStream bos = null;
         FileOutputStream fos = null;
         File file = null;
         try {
@@ -132,26 +131,15 @@ public class RecordService extends Service {
                 dir.mkdirs();
             }
             file = new File(filePath + fileName);
-            fos = new FileOutputStream(file);
-            bos = new BufferedOutputStream(fos);
-            bos.write(bfile);
+            if(!file.exists()){
+                file.createNewFile();
+            }
+            FileOutputStream outputStream = new FileOutputStream(file,true);
+            outputStream.write(bfile);
+            outputStream.flush();
+            outputStream.close();
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            if (bos != null) {
-                try {
-                    bos.close();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-            }
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-            }
         }
     }
 
@@ -166,6 +154,7 @@ public class RecordService extends Service {
                 int outindex = mMediaCodec.dequeueOutputBuffer(bufferInfo,2*1000);
                 if(outindex >= 0){
                     byteBuffer = mMediaCodec.getOutputBuffer(outindex);
+                    saveEncorderData(byteBuffer.array(),"/sdcard/Download/","screenreord");
                     mMediaCodec.releaseOutputBuffer(outindex,false);
                     Log.d(TAG,"outindex="+outindex);
                 }
