@@ -17,7 +17,6 @@ import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -121,26 +120,19 @@ public class RecordService extends Service {
         mDisplayManager.createVirtualDisplay(VIRTUALDEVICE, mScreen_width, mScreen_height, mScreen_DPI, mSurface, flags);
     }
 
-    //not used ,pre for save the encode data
-    private void saveEncorderData(byte[] bfile, String filePath,String fileName) {
-        FileOutputStream fos = null;
-        File file = null;
-        try {
-            File dir = new File(filePath);
-            if(!dir.exists()&&dir.isDirectory()){//check the directory is exist
-                dir.mkdirs();
-            }
-            file = new File(filePath + fileName);
-            if(!file.exists()){
-                file.createNewFile();
-            }
-            FileOutputStream outputStream = new FileOutputStream(file,true);
-            outputStream.write(bfile);
-            outputStream.flush();
-            outputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+    //for save the encode data
+    private void saveEncorderData(ByteBuffer bfile, String filePath,String fileName) throws IOException {
+        File file=new File(filePath + "/" +fileName);
+        if(!file.exists()){
+            Log.d(TAG,"file.exists() pre createNewFile");
+            file.createNewFile();
         }
+        byte[] bytesStream = new byte[bfile.remaining()];
+        FileOutputStream fe=new FileOutputStream(file,true);
+        bfile.get(bytesStream, 0, bytesStream.length);
+        fe.write(bytesStream);
+        fe.flush();
+        fe.close();
     }
 
     //add the thread for encord
@@ -148,16 +140,20 @@ public class RecordService extends Service {
         @Override
         public void run() {
             super.run();
-            MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
-            ByteBuffer byteBuffer ;
-            while (true){
-                int outindex = mMediaCodec.dequeueOutputBuffer(bufferInfo,2*1000);
-                if(outindex >= 0){
-                    byteBuffer = mMediaCodec.getOutputBuffer(outindex);
-                    saveEncorderData(byteBuffer.array(),"/sdcard/Download/","screenreord");
-                    mMediaCodec.releaseOutputBuffer(outindex,false);
-                    Log.d(TAG,"outindex="+outindex);
+            MediaCodec.BufferInfo aBufferInfo = new MediaCodec.BufferInfo();
+            int outindex = mMediaCodec.dequeueOutputBuffer(aBufferInfo,2*1000);
+            while (outindex >= 0){
+                ByteBuffer outputBuffer = mMediaCodec.getOutputBuffer(outindex);
+                outputBuffer.position(aBufferInfo.offset);
+                outputBuffer.limit(aBufferInfo.offset + aBufferInfo.size);
+                try {
+                    saveEncorderData(outputBuffer,"/storage/emulated/0/Download","screenrecord.h264");
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
+                outputBuffer.clear();
+                mMediaCodec.releaseOutputBuffer(outindex,false);
+                Log.d(TAG,"outindex="+outindex);
             }
         }
     }
