@@ -94,9 +94,9 @@ public class MediacodecThread  extends Thread  {
                         if (length > 0) {
                             // Read file and fill buffer
                             int count = is.read(buffer);
-                            Log.i("count", "" + count);
+                            Log.i(TAG, "" + count);
                             h264Read += count;
-                            Log.d("Read", "count:" + count + " h264Read:"
+                            Log.d(TAG, "count:" + count + " h264Read:"
                                     + h264Read);
                             // Fill frameBuffer
                             if (frameOffset + count < 200000) {
@@ -112,7 +112,7 @@ public class MediacodecThread  extends Thread  {
 
                             // Find H264 head
                             int offset = findHead(framebuffer, frameOffset);
-                            Log.i("find head", " Head:" + offset);
+                            Log.i(TAG, " Head:" + offset);
                             while (offset > 0) {
                                 if (checkHead(framebuffer, 0)) {
                                     // Fill decoder
@@ -123,7 +123,7 @@ public class MediacodecThread  extends Thread  {
                                         System.arraycopy(temp, offset, framebuffer,
                                                 0, frameOffset - offset);
                                         frameOffset -= offset;
-                                        Log.e("Check", "is Head:" + offset);
+                                        Log.e(TAG, "is Head:" + offset);
                                         // Continue finding head
                                         offset = findHead(framebuffer, frameOffset);
                                     }
@@ -132,7 +132,7 @@ public class MediacodecThread  extends Thread  {
                                 }
 
                             }
-                            Log.d("loop", "end loop");
+                            Log.d(TAG, "end loop");
                         } else {
                             h264Read = 0;
                             frameOffset = 0;
