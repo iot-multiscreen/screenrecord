@@ -12,6 +12,8 @@ import android.media.MediaCodec;
 import android.media.MediaFormat;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -40,8 +42,8 @@ public class MainActivity extends Activity {
     private SurfaceView mSurfaceView;
     private Button mReadButton;
     private MediaCodecUtil mediaCodecUtil;
-    MediacodecThread mediacodecThread;
-    boolean isInit = false;//the mediacode thread only one
+    private MediacodecThread mediacodecThread;
+    private boolean isInit = false;//the mediacode thread only one
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +77,7 @@ public class MainActivity extends Activity {
                 if (h264File.exists()) {
                     if(!isInit) {
                         mediacodecThread = new MediacodecThread(mediaCodecUtil, h264Path);
+                        mediacodecThread.setEventHandler(mEventHandler);
                         mediacodecThread.start();
                         isInit = true;
                     }
@@ -105,5 +108,20 @@ public class MainActivity extends Activity {
             }
         });
     }
+
+    Handler mEventHandler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(@NonNull Message message) {
+            switch (message.what){
+                case MediaCodecUtil.PLAYSTOP:
+                    isInit = false ;
+                    mediacodecThread.stopThread();
+                    mediacodecThread = null;
+                    Log.d(TAG,"PLAYSTOP");
+                    break;
+            }
+            return false;
+        }
+    });
 
 }

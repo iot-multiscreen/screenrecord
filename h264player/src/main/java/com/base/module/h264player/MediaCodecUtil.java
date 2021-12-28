@@ -10,6 +10,7 @@ import java.nio.ByteBuffer;
 
 public class MediaCodecUtil {
     private String TAG = "h264player.MediaCodecUtil";
+    public final static int PLAYSTOP = 0;
     private SurfaceHolder holder;
     private int width, height;
     private MediaCodec mCodec;
@@ -48,7 +49,7 @@ public class MediaCodecUtil {
         isFirst = false;
     }
 
-    int mCount = 0;
+    //int mCount = 0;
     public boolean onFrame(byte[] buf, int offset, int length) {
         Log.e(TAG, "onFrame start");
         ByteBuffer[] inputBuffers = mCodec.getInputBuffers();
@@ -59,9 +60,8 @@ public class MediaCodecUtil {
             ByteBuffer inputBuffer = inputBuffers[inputBufferIndex];
             inputBuffer.clear();
             inputBuffer.put(buf, offset, length);
-            mCodec.queueInputBuffer(inputBufferIndex, 0, length, mCount
-                    * TIME_INTERNAL, 0);
-            mCount++;
+            mCodec.queueInputBuffer(inputBufferIndex, 0, length, 0, 0);
+            //mCount++;
         } else {
             return false;
         }

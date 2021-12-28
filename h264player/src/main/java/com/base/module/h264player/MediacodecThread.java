@@ -1,5 +1,6 @@
 package com.base.module.h264player;
 
+import android.os.Handler;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -15,6 +16,7 @@ public class MediacodecThread  extends Thread  {
         private boolean isFinish = false;
         private final static int TIME_INTERNAL = 30;
         private final static int HEAD_OFFSET = 512;
+        private Handler mHandler;
         private File h264File ;
         /**
          * 初始化解码器
@@ -27,6 +29,9 @@ public class MediacodecThread  extends Thread  {
             h264File = new File(path);
         }
 
+        public void setEventHandler(Handler eventhandler){
+            mHandler = eventhandler;
+        }
     /**
      * Find H264 frame head
      *
@@ -137,6 +142,7 @@ public class MediacodecThread  extends Thread  {
                             h264Read = 0;
                             frameOffset = 0;
                             readFlag = false;
+                            sendMessage(MediaCodecUtil.PLAYSTOP);
                         }
 
                     } catch (Exception e) {
@@ -155,4 +161,10 @@ public class MediacodecThread  extends Thread  {
         public void stopThread() {
             isFinish = true;
         }
+
+    private void sendMessage(int messagetype) {
+        if (mHandler != null) {
+            mHandler.obtainMessage(messagetype).sendToTarget();
+        }
+    }
 }
