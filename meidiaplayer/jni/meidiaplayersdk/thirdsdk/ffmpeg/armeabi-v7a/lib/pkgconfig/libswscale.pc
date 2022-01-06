@@ -1,0 +1,14 @@
+prefix=/home/muxi/code/github/ffmpeg/android/armeabi-v7a
+exec_prefix=${prefix}
+libdir=/home/muxi/code/github/ffmpeg/android/armeabi-v7a/lib
+includedir=/home/muxi/code/github/ffmpeg/android/armeabi-v7a/include
+
+Name: libswscale
+Description: FFmpeg image rescaling library
+Version: 6.1.100
+Requires: 
+Requires.private: libavutil >= 57.7.100
+Conflicts:
+Libs: -L${libdir}  -lswscale 
+Libs.private: -lm
+Cflags: -I${includedir}

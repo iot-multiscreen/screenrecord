@@ -1,0 +1,14 @@
+prefix=/home/muxi/code/github/ffmpeg/android/arm64-v8a
+exec_prefix=${prefix}
+libdir=/home/muxi/code/github/ffmpeg/android/arm64-v8a/lib
+includedir=/home/muxi/code/github/ffmpeg/android/arm64-v8a/include
+
+Name: libavutil
+Description: FFmpeg utility library
+Version: 57.7.100
+Requires: 
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lavutil 
+Libs.private: -pthread -lm
+Cflags: -I${includedir}
