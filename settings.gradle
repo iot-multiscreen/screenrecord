@@ -1,4 +1,4 @@
 rootProject.name = "screenrecord"
 include ':app'
 include ':h264player'
-include ':meidiaplayer'
+include ':mediaplayer'
