@@ -1,4 +1,4 @@
-package com.base.module.meidiaplayer;
+package com.base.module.mediaplayer;
 
 import android.content.Context;
 

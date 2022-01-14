@@ -173,7 +173,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved)
     ALOGD("[%s][%d]\n",__FUNCTION__ ,__LINE__);
     /* Native function registration */
     FIND_CLASS(gMSSIClassInfo.mediaplayerClazz,
-                "com/base/module/mediaplayer/MultiMediaEngine");
+                "com/base/module/mediaplayer/MediaplayerEngine");
     if (env->RegisterNatives(gMSSIClassInfo.mediaplayerClazz,
         gMethods, sizeof(gMethods)/sizeof(gMethods[0])) < 0) {
         return JNI_FALSE;

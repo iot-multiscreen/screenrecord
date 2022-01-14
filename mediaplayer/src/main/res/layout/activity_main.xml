@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".MainActivity">
+    tools:context="com.base.module.mediaplayer.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -57,6 +57,11 @@
             android:layout_weight="1"
             android:text="stop" />
     </LinearLayout>
+    <Button
+        android:id="@+id/native_test"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="native test" />
     <TextureView
         android:id="@+id/videoView"
         android:layout_width="match_parent"

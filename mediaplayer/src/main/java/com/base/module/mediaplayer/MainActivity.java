@@ -1,7 +1,4 @@
-package com.base.module.meidiaplayer;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+package com.base.module.mediaplayer;
 
 import android.app.Activity;
 import android.content.Context;
@@ -15,16 +12,20 @@ import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
 
+import com.base.module.meidiaplayer.R;
+
 public class MainActivity extends Activity {
     private final static String TAG = "player.MainActivity";
     private Button android_player,android_ndk_player,third_sdk_player;
     private Button mPlay,mPause,mStop;
+    private Button mNative_test;
     private TextureView mVideoView;
     private MeidaplayerTest mediaplayer;
     private boolean mPlayerEnable = false;
     private boolean mPlayerPlay = false;
     private Context mContext;
     private Surface mSurface;
+    private MediaplayerEngine mediaplayerEngine;
     private final static String TESTVIDEO = "/mnt/sdcard/Download/testvideo.mp4";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +87,16 @@ public class MainActivity extends Activity {
             }
         }
     };
+    private View.OnClickListener mNativetest_listener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if(mediaplayerEngine == null){
+                mediaplayerEngine = new MediaplayerEngine();
+            }
+            mediaplayerEngine.nativeInit(0);
+        }
+    };
+
     private Handler mEventHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -133,6 +144,8 @@ public class MainActivity extends Activity {
         mPlay = (Button)findViewById(R.id.play);
         mPause = (Button)findViewById(R.id.pause);
         mStop = (Button)findViewById(R.id.stop);
+        mNative_test = (Button)findViewById(R.id.native_test);
+
         android_player.setOnClickListener(android_play_listener);
         android_ndk_player.setOnClickListener(ndk_player_listener);
         third_sdk_player.setOnClickListener(third_sdk_player_listener);
@@ -140,6 +153,7 @@ public class MainActivity extends Activity {
         mPause.setOnClickListener(mPause_listener);
         mStop.setOnClickListener(mStop_listener);
         mVideoView.setSurfaceTextureListener(mVideoView_listener);
+        mNative_test.setOnClickListener(mNativetest_listener);
     }
 
     @Override

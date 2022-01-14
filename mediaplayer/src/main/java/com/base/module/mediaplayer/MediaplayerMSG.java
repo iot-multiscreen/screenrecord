@@ -1,4 +1,4 @@
-package com.base.module.meidiaplayer;
+package com.base.module.mediaplayer;
 
 public class MediaplayerMSG {
     public final static int PLAYER_PREPARED= 0;
