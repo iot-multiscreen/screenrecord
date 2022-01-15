@@ -1,18 +1,23 @@
 #define LOG_TAG "com_mediaplayer_jni"
 
-#define MM_EVENT         "MMEvent"
+#define MP_EVENT         "MPEvent"
 #include <jni.h>
 #include <stdio.h>
 #include <string.h>
 #include <android/log.h>
 #include <android/native_window_jni.h>
 #include "utils/Log.h"
-//using namespace android;
+#include "interface/MediaplayerInterface.h"
+
+using namespace android;
 static void jni_stringarray_callback(const char* eName, int numObjects, 
                                         char strArray[][4096],const jobject& mediaplayerObj);
+static void mediaplayer_stringarray_callback(const char* eName, int numObjects,
+                                             char strArray[][4096]);
 
 ANativeWindow *nativeWindow=NULL;
-
+MediaplayerInterface *mediaplayerInterface = NULL;
+jobject mMediaplayerObj = NULL;
 static JavaVM *gJavaVM = NULL;
 
 #define FIND_CLASS(var, className) do{\
@@ -27,7 +32,17 @@ static struct {
 JNIEXPORT jint JNICALL nativeInit
   (JNIEnv * env, jobject mediaplayerObj,jint mtype)
 {
+    if(mMediaplayerObj){
+        ALOGD("[%s][%d] Maybe mMediaplayerObj(%p)didn't close last time \n",
+              __FUNCTION__,__LINE__,mMediaplayerObj);
+        env->DeleteGlobalRef(mMediaplayerObj);
+    }
+    mMediaplayerObj = env->NewGlobalRef(mediaplayerObj);
     ALOGD("[%s][%d]\n",__FUNCTION__ ,__LINE__);
+    if(NULL == mediaplayerInterface){
+        mediaplayerInterface = new MediaplayerInterface(mediaplayer_stringarray_callback);
+    }
+    mediaplayerInterface->init(mtype);
     return 0;
 }
 
@@ -35,12 +50,16 @@ JNIEXPORT jint JNICALL nativePrepare
       (JNIEnv * env, jobject mediaplayerObj)
 {
     ALOGD("[%s][%d]\n",__FUNCTION__ ,__LINE__);
+    mediaplayerInterface->prepare();
     return 0;
 }
 
 JNIEXPORT jint JNICALL nativeStop
         (JNIEnv * env, jobject mediaplayerObj)
 {
+
+    env->DeleteGlobalRef(mMediaplayerObj);
+    mMediaplayerObj = NULL;
     ALOGD("[%s][%d]\n",__FUNCTION__ ,__LINE__);
     return 0;
 }
@@ -49,6 +68,7 @@ JNIEXPORT jint JNICALL nativePlay
         (JNIEnv * env, jobject mediaplayerObj)
 {
     ALOGD("[%s][%d]\n",__FUNCTION__ ,__LINE__);
+    mediaplayerInterface->play();
     return 0;
 }
 
@@ -58,7 +78,7 @@ JNIEXPORT jint JNICALL nativeSetVideoSurface
     ALOGD("[%s][%d]\n",__FUNCTION__ ,__LINE__);
     nativeWindow =  ANativeWindow_fromSurface(env,javaSurface);
     if(NULL != nativeWindow ){
-
+        mediaplayerInterface->setSurfaceTex(nativeWindow);
     }
     return 0;
 }
@@ -67,6 +87,7 @@ JNIEXPORT jint JNICALL nativePause
         (JNIEnv * env, jobject mediaplayerObj)
 {
     ALOGD("[%s][%d]\n",__FUNCTION__ ,__LINE__);
+    mediaplayerInterface->pause();
     return 0;
 }
 
@@ -74,6 +95,7 @@ JNIEXPORT jint JNICALL nativeResume
         (JNIEnv * env, jobject mediaplayerObj)
 {
     ALOGD("[%s][%d]\n",__FUNCTION__ ,__LINE__);
+    mediaplayerInterface->resume();
     return 0;
 }
 
@@ -104,7 +126,7 @@ void releaseThreadEnv(bool attach){
  * This function can be used in both Java threads and native threads.
  */
 static void callback_handler(jstring eventName, jobjectArray oarr,
-    jobject wfdSession)
+    jobject mediaplayerObj)
 {
     ALOGD("[%s][%d]\n",__FUNCTION__ ,__LINE__);
     int status;
@@ -122,8 +144,73 @@ static void callback_handler(jstring eventName, jobjectArray oarr,
             }
             const char* eName = env->GetStringUTFChars(eventName, NULL);
             env->ReleaseStringUTFChars(eventName, eName);
-            env->CallVoidMethod(wfdSession, method, eventName, oarr);
+            env->CallVoidMethod(mediaplayerObj, method, eventName, oarr);
         }while(0);
+        releaseThreadEnv(isAttached);
+    }
+}
+
+
+static void mediaplayer_stringarray_callback(const char* eName, int numObjects,
+                                             char strArray[][4096]){
+    ALOGD("stringarray_callback  eName=%s  numObjects=%d", eName, numObjects);
+    if(nativeWindow != NULL){
+        bool isAttached = false;
+        JNIEnv *env=getThreadEnv(&isAttached);
+        if(env==NULL){
+            ALOGE("[%s][%d] getThreadEnv erro!!!!",__FUNCTION__,__LINE__);
+            return;
+        }else{
+            do{
+                if(mMediaplayerObj){
+                    ALOGD("[%s][%d]\n",__FUNCTION__,__LINE__);
+                    jni_stringarray_callback(eName, numObjects, strArray,mMediaplayerObj);
+                }
+            }while(0);
+        }
+    }else{
+        if(mMediaplayerObj){
+            jni_stringarray_callback(eName, numObjects, strArray,mMediaplayerObj);
+        }
+    }
+}
+
+static void jni_stringarray_callback(const char* eName, int numObjects,
+                                     char strArray[][4096],const jobject& mediaplayerObj)
+{
+    ALOGD("stringarray_callback  eName=%s  numObjects=%d", eName, numObjects);
+    if(numObjects >= 4 && !strcmp(eName,MP_EVENT)) {
+        if(!strcmp(strArray[0],"StreamStarted")) {
+            ALOGD("Received StreamStarted");
+        }
+    }
+//    for (int i=0; i<numObjects; i++) {
+//        ALOGD("\t strArray[%d] = \"%s\"", i, strArray[i]);
+//    }
+
+    bool isAttached = false;
+    JNIEnv *env=getThreadEnv(&isAttached);
+    if(env==NULL){
+        ALOGE("[%s][%d] getThreadEnv erro!!!!",__FUNCTION__,__LINE__);
+        return;
+    }else{
+        do {
+            jstring eventName = env->NewStringUTF(eName);
+            jclass objArrCls = env->FindClass("java/lang/Object");
+            jobjectArray oarr = env->NewObjectArray(numObjects, objArrCls, NULL);
+            jbyteArray strArr[numObjects];
+            for (int i = 0; i < numObjects; i++) {
+                strArr[i] = env->NewByteArray(4096);
+                env->SetByteArrayRegion(strArr[i], 0, 4096,
+                                        reinterpret_cast<const jbyte *>(strArray[i]));
+                env->SetObjectArrayElement(oarr, i, strArr[i]);
+                env->DeleteLocalRef(strArr[i]);
+            }
+            callback_handler(eventName, oarr, mediaplayerObj);
+            env->DeleteLocalRef(eventName);
+            env->DeleteLocalRef(oarr);
+            env->DeleteLocalRef(objArrCls);
+        }while (0);
         releaseThreadEnv(isAttached);
     }
 }

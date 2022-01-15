@@ -2,7 +2,7 @@ package com.base.module.mediaplayer;
 
 import android.content.Context;
 
-public class NdkMediaplayer extends BaseMediaplayer{
+public class NdkMediaplayer extends BaseMediaplayer implements MediaplayerEngine.mediaCallBack{
     private Context mContext;
     private NdkMediaplayer mediaPlayer;
 
@@ -14,6 +14,11 @@ public class NdkMediaplayer extends BaseMediaplayer{
     }
 
     public NdkMediaplayer(){
+
+    }
+
+    @Override
+    public void CallBack(String eventName, Object[] objectArray) {
 
     }
 }

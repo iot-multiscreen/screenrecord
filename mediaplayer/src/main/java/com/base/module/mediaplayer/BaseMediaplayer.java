@@ -1,6 +1,7 @@
 package com.base.module.mediaplayer;
 
 import android.os.Handler;
+import android.util.Log;
 import android.view.Surface;
 
 public class BaseMediaplayer implements IMediaplayer{
@@ -60,4 +61,6 @@ public class BaseMediaplayer implements IMediaplayer{
     public void setEventHandler(Handler eventhandler){
 
     }
-}
+
+
+    }
