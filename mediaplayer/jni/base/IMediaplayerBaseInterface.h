@@ -11,7 +11,8 @@ class IMediaplayerBaseInterface {
 public:
     IMediaplayerBaseInterface(stringarray_cb = NULL);
     ~IMediaplayerBaseInterface();
-    virtual int init(int type);
+    virtual int init();
+    virtual int setDatatSource(const char *url);
     virtual int prepare();
     virtual int stop();
     virtual int play();
@@ -21,7 +22,6 @@ public:
     virtual int eventCallbackState(const char* state);
 protected:
     stringarray_cb mstringarray_cb;
-    int mSessionId;
 };
 }
 #endif

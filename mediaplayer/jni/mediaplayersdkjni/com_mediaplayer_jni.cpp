@@ -46,6 +46,17 @@ JNIEXPORT jint JNICALL nativeInit
     return 0;
 }
 
+JNIEXPORT jint JNICALL nativeSetDatatSource
+        (JNIEnv * env, jobject mediaplayerObj,jstring url)
+{
+    const char *murl = env->GetStringUTFChars(url, NULL);
+    if(NULL != mediaplayerInterface){
+        mediaplayerInterface->setDatatSource(murl);
+    }
+    env->ReleaseStringUTFChars(url, murl);
+    return 0;
+}
+
 JNIEXPORT jint JNICALL nativePrepare
       (JNIEnv * env, jobject mediaplayerObj)
 {
@@ -222,6 +233,9 @@ static JNINativeMethod gMethods[] = {
         {   "nativeInit",
             "(I)I",
             (void*) nativeInit},
+        {   "nativeSetDatatSource",
+            "(Ljava/lang/String;)I",
+             (void*) nativeSetDatatSource},
         {   "nativePrepare",
             "()I",
             (void*) nativePrepare},

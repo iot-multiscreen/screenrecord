@@ -9,11 +9,14 @@
 #define LOG_TAG "MediaplayerInterface"
 #include <stdio.h>
 #include "MediaplayerInterface.h"
+#include "mediaplayersdk/ffmpeg_mediaplayer.h"
+#include "mediaplayersdk/ndk_mediaplayer.h"
 #include "utils/Log.h"
 using namespace android;
 
 MediaplayerInterface::MediaplayerInterface(stringarray_cb stringarray_cb)
-    : mstringarray_cb(stringarray_cb){
+    : mstringarray_cb(stringarray_cb),
+      mMediaplayer(NULL){
     ALOGD("[%s][%d]this:%p",__FUNCTION__,__LINE__,this);
 }
 
@@ -25,12 +28,25 @@ MediaplayerInterface::~MediaplayerInterface(){
 int MediaplayerInterface::init(int type){
     int revalue = 0;
     if(NULL == mMediaplayer){
-        ALOGD("[%s][%d]",__FUNCTION__,__LINE__);
+        switch (type) {
+            case FFMPEG_PLAYER:
+                mMediaplayer = new FFmpegMediaPlayer(mstringarray_cb);
+                break;
+            case NDK_PLAYER:
+                mMediaplayer = new NdkMediaPlayer(mstringarray_cb);
+                break;
+            default:
+                break;
+        }
+    };
+    if(NULL != mMediaplayer) {
+        mMediaplayer->init();
     }
-    if(NULL != mMediaplayer){
-        mMediaplayer->init(type);
-    }
+    return revalue;
+}
 
+int MediaplayerInterface::setDatatSource(const char *url){
+    int revalue = 0;
     return revalue;
 }
 

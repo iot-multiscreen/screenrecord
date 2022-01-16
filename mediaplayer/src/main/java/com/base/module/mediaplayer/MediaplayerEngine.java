@@ -3,6 +3,8 @@ package com.base.module.mediaplayer;
 import android.view.Surface;
 
 public class MediaplayerEngine {
+    public final static int MEDIA_TYPE_FFMPEG = 0;
+    public final static int MEDIA_TYPE_NDK = 1;
     static {
         System.loadLibrary("mediaplayer_native");
     }
@@ -16,6 +18,7 @@ public class MediaplayerEngine {
         this.mCallBack = callBack;
     }
     public native int nativeInit(int type);
+    public native int nativeSetDatatSource(String path);
     public native int nativePrepare();
     public native int nativeStop();
     public native int nativePlay();

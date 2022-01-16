@@ -1,7 +1,7 @@
 #ifndef _MEDIAPLAER_INTERFACE_H
 #define _MEDIAPLAER_INTERFACE_H
 #include <android/native_window_jni.h>
-#include "interface/IMediaplayerBaseInterface.h"
+#include "base/IMediaplayerBaseInterface.h"
 
 using namespace android;
 
@@ -13,6 +13,7 @@ public:
     ~MediaplayerInterface();
 
     int init(int type);
+    int setDatatSource(const char *url);
     int prepare();
     int stop();
     int play();
@@ -22,6 +23,10 @@ public:
 private:
     stringarray_cb mstringarray_cb;
     IMediaplayerBaseInterface *mMediaplayer;
+    enum {
+        FFMPEG_PLAYER,
+        NDK_PLAYER,
+    };
 };
 
 #endif
