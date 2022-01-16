@@ -2,7 +2,7 @@ LOCAL_PATH := $(call my-dir)
 
 ##-----------ffmpeg----------------------------------
 FF_SRC_DIR =$(LOCAL_PATH)/$(TARGET_ARCH_ABI)/lib
-$(warning $(FF_SRC_DIR))
+###$(warning $(FF_SRC_DIR))
 include $(CLEAR_VARS)
 LOCAL_MODULE    := ff_avformat
 LOCAL_SRC_FILES :=  $(FF_SRC_DIR)/libavformat.so
