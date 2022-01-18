@@ -1,7 +1,9 @@
 package com.base.module.mediaplayer;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,6 +13,9 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.base.module.meidiaplayer.R;
 
@@ -26,7 +31,7 @@ public class MainActivity extends Activity {
     private Context mContext;
     private Surface mSurface;
     private MediaplayerEngine mediaplayerEngine;
-    private final static String TESTVIDEO = "/mnt/sdcard/Download/testvideo.mp4";
+    private final static String TESTVIDEO = "/sdcard/Download/testvideo.mp4";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +44,7 @@ public class MainActivity extends Activity {
         public void onClick(View view) {
             if(mediaplayer == null){
                 mediaplayer = new MeidaplayerTest(MeidaplayerTest.ANDROID_PLAYER,mContext);
+                Log.d(TAG,"TESTVIDEO= "+TESTVIDEO);
                 mediaplayer.setDatatSource(TESTVIDEO);
                 mediaplayer.setSurface(mSurface);
                 mediaplayer.setEventHandler(mEventHandler);
@@ -160,6 +166,7 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         initlayout();
+        checkPermission();
     }
 
     @Override
@@ -171,4 +178,14 @@ public class MainActivity extends Activity {
     protected void onPause() {
         super.onPause();
     }
+
+    private void checkPermission(){
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+        }
+    }
+
 }

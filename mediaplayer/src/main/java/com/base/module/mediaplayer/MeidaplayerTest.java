@@ -11,6 +11,7 @@ public class MeidaplayerTest extends BaseMediaplayer{
     public final static int ANDROID_PLAYER = 0;
     public final static int NDK_PLAYER = 1;
     public final static int THIRD_SDK_PLAYER = 2;
+    public final static int ANDROID_MediaCodec_PLAYER = 3;
     public MeidaplayerTest(int mediatype, Context context){
         if(null == mediaplayer){
             switch (mediatype){
@@ -18,10 +19,13 @@ public class MeidaplayerTest extends BaseMediaplayer{
                     mediaplayer = new AndroidMediaplayer(context);
                     break;
                 case NDK_PLAYER:
-                    mediaplayer = new NdkMediaplayer(context);
+                    mediaplayer = new NdkMediaplayer();
                     break;
                 case THIRD_SDK_PLAYER:
-                    mediaplayer = new ThirdMediaplayer(context);
+                    mediaplayer = new ThirdMediaplayer();
+                    break;
+                case ANDROID_MediaCodec_PLAYER:
+                    mediaplayer = AndroidMediacodecPlayer.getInstance(context);
                     break;
                 default:
                     break;
